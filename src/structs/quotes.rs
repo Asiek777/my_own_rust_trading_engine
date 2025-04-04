@@ -8,6 +8,15 @@ pub enum Side {
     Sell,
 }
 
+impl Side {
+    pub fn reverse(&self) -> Side {
+        match self {
+            Self::Buy => Self::Sell,
+            Self::Sell => Self::Buy,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Quote {
     asset: Asset,
