@@ -1,17 +1,38 @@
 use std::collections::HashMap;
 
-enum AssetType {
+pub type Qty = f64;
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum AssetType {
     Currency,
     Stock,
 }
-struct Asset {
-    type_of: AssetType,
-    name: String,
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct Asset {
+    pub type_of: AssetType,
+    pub name: String,
+}
+
+impl Asset {
+    pub fn new(type_of: AssetType, name: String) -> Self {
+        Self { type_of, name }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
 }
 
 struct AssetInWallet {
     asset: Asset,
-    quantity: f64,
+    quantity: Qty,
+}
+
+impl AssetInWallet {
+    fn asset(&self) -> &Asset {
+        &self.asset
+    }
 }
 
 struct Wallet {
@@ -19,14 +40,18 @@ struct Wallet {
 }
 
 impl Wallet {
-    fn add_asset(&mut self, assetInWallet: AssetInWallet) {
+    fn add_asset(&mut self, asset_in_wallet: AssetInWallet) {
         self.assets
-            .insert(assetInWallet.asset.name.clone(), assetInWallet);
+            .insert(asset_in_wallet.asset.name.clone(), asset_in_wallet);
     }
     fn new() -> Wallet {
         Wallet {
             assets: HashMap::new(),
         }
+    }
+
+    fn assets_mut(&mut self) -> &mut HashMap<String, AssetInWallet> {
+        &mut self.assets
     }
 }
 
