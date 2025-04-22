@@ -5,13 +5,13 @@ use crate::structs::{
 use chrono::NaiveDate;
 
 #[derive(Debug)]
-struct PriceEntry {
-    open: Price,
-    high: Price,
-    low: Price,
-    close: Price,
-    volume: Qty,
-    date: NaiveDate,
+pub struct PriceEntry {
+    pub open: Price,
+    pub high: Price,
+    pub low: Price,
+    pub close: Price,
+    pub volume: Qty,
+    pub date: NaiveDate,
 }
 
 impl PriceEntry {
@@ -35,7 +35,7 @@ impl PriceEntry {
 }
 
 #[derive(Debug)]
-struct PriceSeries {
+pub struct PriceSeries {
     asset: Asset,
     rate: String,
     entries: Vec<PriceEntry>,
@@ -49,18 +49,22 @@ impl PriceSeries {
             entries,
         }
     }
+
+    pub fn entries(&self) -> &[PriceEntry] {
+        &self.entries
+    }
 }
 
 #[cfg(test)]
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use std::fs;
 
-    fn to_price(slice: &str) -> Price {
+    pub fn to_price(slice: &str) -> Price {
         let number = slice.parse::<f64>().unwrap() * 10000.0;
         number as Price
     }
-    fn line_to_entry(line: &str) -> PriceEntry {
+    pub fn line_to_entry(line: &str) -> PriceEntry {
         let mut entry = line.split(",").skip(2);
         let date_string = entry.next().unwrap();
         let date = NaiveDate::parse_from_str(date_string, "%Y%m%d").unwrap();
@@ -72,10 +76,7 @@ mod tests {
         let volume = entry.next().unwrap().parse::<Qty>().unwrap();
         PriceEntry::new(open, high, low, close, volume, date)
     }
-
-    #[test]
-    fn reading_entries() {
-        let content = fs::read_to_string("./training_data/nc stocks/orl.txt").unwrap();
+    pub fn file_to_price_serises(content: String) -> PriceSeries {
         let lines = content.lines();
         let mut series = PriceSeries::new(
             Asset::new(
@@ -89,6 +90,13 @@ mod tests {
             let entry = line_to_entry(line);
             series.entries.push(entry);
         }
+        series
+    }
+
+    #[test]
+    fn reading_entries() {
+        let content = fs::read_to_string("./training_data/nc stocks/orl.txt").unwrap();
+        let series = file_to_price_serises(content);
         print!("{:?}", series);
         assert_eq!(2609, series.entries.len())
     }
